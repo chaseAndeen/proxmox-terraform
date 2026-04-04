@@ -1,0 +1,118 @@
+---
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  format:
+    name: Terraform Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+  validate-pbs:
+    name: Validate (pbs)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+
+      - name: Create stub vars file
+        working-directory: stacks/pbs
+        run: |
+          cat > terraform.tfvars << 'VARS'
+          aws_profile          = "default"
+          aws_region           = "us-east-1"
+          proxmox_api_url      = "https://pve-01.infra.example.com:8006/"
+          proxmox_tls_insecure = true
+          proxmox_node         = "pve-01"
+          proxmox_node_address = "pve-01.infra.example.com"
+          proxmox_ssh_user     = "ansible"
+          proxmox_ssh_port     = 2222
+          network_bridge       = "vmbr0"
+          vm_ip                = "192.168.1.23"
+          vm_cidr              = 24
+          vm_gateway           = "192.168.1.1"
+          dns_servers          = ["1.1.1.1"]
+          dns_search_domain    = "example.com"
+          VARS
+
+      - name: Terraform Init
+        working-directory: stacks/pbs
+        run: terraform init -backend=false
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
+
+      - name: Terraform Validate
+        working-directory: stacks/pbs
+        run: terraform validate
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
+
+  validate-svc-01:
+    name: Validate (svc-01)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+
+      - name: Create stub vars file
+        working-directory: stacks/svc-01
+        run: |
+          cat > terraform.tfvars << 'VARS'
+          aws_profile          = "default"
+          aws_region           = "us-east-1"
+          proxmox_api_url      = "https://pve-01.infra.example.com:8006/"
+          proxmox_tls_insecure = true
+          proxmox_node         = "pve-01"
+          proxmox_node_address = "pve-01.infra.example.com"
+          proxmox_ssh_user     = "ansible"
+          proxmox_ssh_port     = 2222
+          network_bridge       = "vmbr0"
+          vlan_id              = 20
+          vm_ip                = "192.168.20.10"
+          vm_cidr              = 24
+          vm_gateway           = "192.168.20.1"
+          dns_servers          = ["1.1.1.1"]
+          dns_search_domain    = "example.com"
+          VARS
+
+      - name: Terraform Init
+        working-directory: stacks/svc-01
+        run: terraform init -backend=false
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
+
+      - name: Terraform Validate
+        working-directory: stacks/svc-01
+        run: terraform validate
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
