@@ -1,0 +1,14 @@
+# ─── AWS ──────────────────────────────────────────────────────────────────────
+aws_profile = "InfraProvisioner"
+aws_region  = "us-east-1"
+
+# ─── Authentik Connection ─────────────────────────────────────────────────────
+authentik_url  = "https://authentik.svc.example.com"
+traefik_domain = "traefik.svc.example.com"
+
+# ─── Admin Account ────────────────────────────────────────────────────────────
+admin_username = "your-username"
+admin_name     = "Your Name"
+admin_email    = "you@example.com"
+
+# On first apply, a one-time recovery link is printed to stdout — follow it to set your password.
