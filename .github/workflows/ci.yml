@@ -116,3 +116,44 @@ jobs:
           AWS_ACCESS_KEY_ID: dummy
           AWS_SECRET_ACCESS_KEY: dummy
           AWS_DEFAULT_REGION: us-east-1
+
+  validate-authentik-config:
+    name: Validate (authentik-config)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.2
+
+      - name: Create stub vars file
+        working-directory: stacks/authentik-config
+        run: |
+          cat > terraform.tfvars << 'VARS'
+          aws_profile    = "default"
+          aws_region     = "us-east-1"
+          authentik_url  = "https://authentik.svc.example.com"
+          traefik_domain = "traefik.svc.example.com"
+          admin_username = "sysop"
+          admin_name     = "Sysop"
+          admin_email    = "admin@example.com"
+          VARS
+
+      - name: Terraform Init
+        working-directory: stacks/authentik-config
+        run: terraform init -backend=false
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
+          AUTHENTIK_TOKEN: dummy
+
+      - name: Terraform Validate
+        working-directory: stacks/authentik-config
+        run: terraform validate
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
+          AUTHENTIK_TOKEN: dummy
