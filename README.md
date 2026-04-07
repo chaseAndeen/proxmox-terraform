@@ -13,8 +13,9 @@ proxmox-terraform/
 ├── stacks/
 │   ├── authentik-config/  # Authentik users, policies, providers, outpost (run after svc.yml)
 │   ├── pbs/               # Proxmox Backup Server VM
-│   └── svc-01/            # Services VM (Traefik + Authentik)
-└── deploy.sh              # wrapper for proxmox stacks (pbs, svc-01)
+│   ├── svc-01/            # Services VM (Traefik + Authentik)
+│   └── unifi/             # UniFi OS Server VM
+└── deploy.sh              # wrapper for proxmox stacks (pbs, svc-01, unifi)
 ```
 
 ---
@@ -32,10 +33,10 @@ sudo apt-get update && sudo apt-get install -y terraform
 aws sso login --profile InfraProvisioner
 ```
 
-### Proxmox requirements (pbs, svc-01 stacks only)
+### Proxmox requirements (pbs, svc-01, unifi stacks)
 - VM templates must exist — built by `packer-templates`:
   - `tpl-ubuntu-noble` (ID 9000) — used by svc-01
-  - `tpl-debian-trixie` (ID 9001) — used by pbs
+  - `tpl-debian-trixie` (ID 9001) — used by pbs, unifi
 - `terraform-prov@pve` API token must exist in SSM — created by `proxmox-playbook`
 - `ansible` service account must exist on `pve-01` — created by `proxmox-playbook bootstrap.yml`
 
@@ -72,6 +73,7 @@ cd proxmox-terraform
 # Proxmox stacks
 cp stacks/pbs/terraform.tfvars.example stacks/pbs/terraform.tfvars
 cp stacks/svc-01/terraform.tfvars.example stacks/svc-01/terraform.tfvars
+cp stacks/unifi/terraform.tfvars.example stacks/unifi/terraform.tfvars
 
 # Authentik stack
 cp stacks/authentik-config/terraform.tfvars.example stacks/authentik-config/terraform.tfvars
@@ -94,6 +96,7 @@ cp stacks/authentik-config/terraform.tfvars.example stacks/authentik-config/terr
 # Target a specific stack
 ./deploy.sh pbs plan
 ./deploy.sh pbs apply
+./deploy.sh unifi apply
 
 # Destroy
 ./deploy.sh pbs destroy
@@ -168,6 +171,7 @@ Each stack maintains independent state in S3:
 | `authentik-config` | `authentik-config/terraform.tfstate` |
 | `pbs` | `pbs/terraform.tfstate` |
 | `svc-01` | `svc-01/terraform.tfstate` |
+| `unifi` | `unifi/terraform.tfstate` |
 
 S3 bucket: `kernelstack-terraform-state` — managed by `terraform-bootstrap`.
 DynamoDB lock table: `kernelstack-terraform-locks`.
