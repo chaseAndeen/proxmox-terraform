@@ -77,19 +77,10 @@ resource "null_resource" "brand_recovery_flow" {
   provisioner "local-exec" {
     environment = {
       AUTHENTIK_URL    = var.authentik_url
-      AWS_PROFILE      = var.aws_profile
-      AWS_REGION       = var.aws_region
+      AUTHENTIK_TOKEN  = data.aws_ssm_parameter.authentik_token.value
       RECOVERY_FLOW_ID = authentik_flow.recovery.uuid
     }
     command = <<-EOT
-      AUTHENTIK_TOKEN=$(aws ssm get-parameter \
-        --name "/infra/svc/authentik/bootstrap_token" \
-        --with-decryption \
-        --query "Parameter.Value" \
-        --output text \
-        --profile "$AWS_PROFILE" \
-        --region "$AWS_REGION")
-
       BRAND_UUID=$(curl -sf \
         -H "Authorization: Bearer $AUTHENTIK_TOKEN" \
         "$AUTHENTIK_URL/api/v3/core/brands/?domain=authentik-default" \
@@ -116,15 +107,16 @@ resource "null_resource" "admin_recovery_link" {
 
   provisioner "local-exec" {
     environment = {
-      AUTHENTIK_URL = var.authentik_url
-      USER_ID       = authentik_user.admin.id
-      USERNAME      = var.admin_username
-      AWS_PROFILE   = var.aws_profile
-      AWS_REGION    = var.aws_region
+      AUTHENTIK_URL            = var.authentik_url
+      USER_ID                  = authentik_user.admin.id
+      USERNAME                 = var.admin_username
+      AWS_PROFILE              = var.aws_profile
+      AWS_REGION               = var.aws_region
+      AUTHENTIK_TOKEN_SSM_PATH = data.aws_ssm_parameter.authentik_token.name
     }
     command = <<-EOT
       AUTHENTIK_TOKEN=$(aws ssm get-parameter \
-        --name "/infra/svc/authentik/bootstrap_token" \
+        --name "$AUTHENTIK_TOKEN_SSM_PATH" \
         --with-decryption \
         --query "Parameter.Value" \
         --output text \
@@ -198,20 +190,11 @@ resource "null_resource" "embedded_outpost" {
 
   provisioner "local-exec" {
     environment = {
-      AUTHENTIK_URL = var.authentik_url
-      AWS_PROFILE   = var.aws_profile
-      AWS_REGION    = var.aws_region
-      PROVIDER_ID   = authentik_provider_proxy.traefik_dashboard.id
+      AUTHENTIK_URL   = var.authentik_url
+      AUTHENTIK_TOKEN = data.aws_ssm_parameter.authentik_token.value
+      PROVIDER_ID     = authentik_provider_proxy.traefik_dashboard.id
     }
     command = <<-EOT
-      AUTHENTIK_TOKEN=$(aws ssm get-parameter \
-        --name "/infra/svc/authentik/bootstrap_token" \
-        --with-decryption \
-        --query "Parameter.Value" \
-        --output text \
-        --profile "$AWS_PROFILE" \
-        --region "$AWS_REGION")
-
       OUTPOST_ID=$(curl -sf \
         -H "Authorization: Bearer $AUTHENTIK_TOKEN" \
         "$AUTHENTIK_URL/api/v3/outposts/instances/?managed=goauthentik.io%2Foutposts%2Fembedded" \
@@ -261,20 +244,11 @@ resource "null_resource" "totp_configure_action" {
   provisioner "local-exec" {
     environment = {
       AUTHENTIK_URL     = var.authentik_url
-      AWS_PROFILE       = var.aws_profile
-      AWS_REGION        = var.aws_region
+      AUTHENTIK_TOKEN   = data.aws_ssm_parameter.authentik_token.value
       VALIDATE_STAGE_ID = authentik_stage_authenticator_validate.totp.id
       SETUP_STAGE_ID    = authentik_stage_authenticator_totp.setup.id
     }
     command = <<-EOT
-      AUTHENTIK_TOKEN=$(aws ssm get-parameter \
-        --name "/infra/svc/authentik/bootstrap_token" \
-        --with-decryption \
-        --query "Parameter.Value" \
-        --output text \
-        --profile "$AWS_PROFILE" \
-        --region "$AWS_REGION")
-
       curl -sf -X PATCH \
         -H "Authorization: Bearer $AUTHENTIK_TOKEN" \
         -H "Content-Type: application/json" \

@@ -3,20 +3,20 @@ module "vm" {
 
   # Identity
   vm_name        = "unifi-01"
-  vm_id          = 202
+  vm_id          = var.vm_id
   vm_description = "UniFi OS Server — managed by Terraform"
   vm_tags        = ["unifi", "terraform"]
 
   # Placement
   proxmox_node   = var.proxmox_node
-  template_vm_id = 9001 # Debian Trixie
+  template_vm_id = var.template_vm_id
 
   # Compute — UniFi OS Server minimum: 4 cores, 4 GB RAM
   cpu_cores = 4
   memory    = 4096
 
   # Disk — UniFi OS Server minimum: 20 GB
-  boot_disk_datastore = "vmdata"
+  boot_disk_datastore = var.boot_disk_datastore
   boot_disk_size      = 32
 
   # Networking — untagged on the main LAN (192.168.10.x)

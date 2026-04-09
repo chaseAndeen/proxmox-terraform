@@ -10,6 +10,13 @@ proxmox_node_address = "pve-01.infra.example.com"
 proxmox_ssh_user     = "ansible"
 proxmox_ssh_port     = 2222
 
+# ─── VM Identity ──────────────────────────────────────────────────────────────
+vm_id          = 200     # Proxmox VM ID — must be unique across the cluster
+template_vm_id = 9001    # ID of the Packer-built template to clone (9000=Ubuntu, 9001=Debian)
+
+# ─── Storage ──────────────────────────────────────────────────────────────────
+boot_disk_datastore = "vmdata"   # Proxmox storage pool for VM boot disk
+
 # ─── Networking ───────────────────────────────────────────────────────────────
 network_bridge    = "vmbr0"
 vm_ip             = "192.168.x.x"

@@ -3,20 +3,20 @@ module "vm" {
 
   # Identity
   vm_name        = "pbs-01"
-  vm_id          = 200
+  vm_id          = var.vm_id
   vm_description = "Proxmox Backup Server — managed by Terraform"
   vm_tags        = ["pbs", "terraform"]
 
   # Placement
   proxmox_node   = var.proxmox_node
-  template_vm_id = 9001
+  template_vm_id = var.template_vm_id
 
   # Compute
   cpu_cores = 4
   memory    = 8192
 
   # Disk
-  boot_disk_datastore = "vmdata"
+  boot_disk_datastore = var.boot_disk_datastore
   boot_disk_size      = 32
 
   # Networking

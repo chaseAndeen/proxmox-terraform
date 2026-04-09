@@ -11,11 +11,13 @@ proxmox-terraform/
 ├── modules/
 │   └── proxmox-vm/        # shared VM module
 ├── stacks/
+│   ├── amp-01/            # AMP Management Node (ADS controller)
+│   ├── amp-02/            # AMP Target Node (game server worker)
 │   ├── authentik-config/  # Authentik users, policies, providers, outpost (run after svc.yml)
 │   ├── pbs/               # Proxmox Backup Server VM
 │   ├── svc-01/            # Services VM (Traefik + Authentik)
 │   └── unifi/             # UniFi OS Server VM
-└── deploy.sh              # wrapper for proxmox stacks (pbs, svc-01, unifi)
+└── deploy.sh              # wrapper for proxmox stacks (amp-01, amp-02, pbs, svc-01, unifi)
 ```
 
 ---
@@ -29,14 +31,14 @@ wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/sh
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt-get update && sudo apt-get install -y terraform
 
-# AWS CLI
-aws sso login --profile InfraProvisioner
+# AWS CLI — log in with the profile set in backend.hcl (default: InfraProvisioner)
+aws sso login --profile <aws_profile>
 ```
 
-### Proxmox requirements (pbs, svc-01, unifi stacks)
+### Proxmox requirements (amp-01, amp-02, pbs, svc-01, unifi stacks)
 - VM templates must exist — built by `packer-templates`:
   - `tpl-ubuntu-noble` (ID 9000) — used by svc-01
-  - `tpl-debian-trixie` (ID 9001) — used by pbs, unifi
+  - `tpl-debian-trixie` (ID 9001) — used by amp-01, amp-02, pbs, unifi
 - `terraform-prov@pve` API token must exist in SSM — created by `proxmox-playbook`
 - `ansible` service account must exist on `pve-01` — created by `proxmox-playbook bootstrap.yml`
 
@@ -48,7 +50,7 @@ aws sso login --profile InfraProvisioner
 
 ## SSM Parameters
 
-### Proxmox stacks (pbs, svc-01)
+### Proxmox stacks (amp-01, amp-02, pbs, svc-01, unifi)
 
 | Parameter | Type | Description |
 |---|---|---|
@@ -70,10 +72,16 @@ aws sso login --profile InfraProvisioner
 git clone <repo-url>
 cd proxmox-terraform
 
+# Backend config — shared S3 state backend settings
+cp backend.hcl.example backend.hcl
+# Edit backend.hcl — set bucket, region, profile, dynamodb_table
+
 # Proxmox stacks
 cp stacks/pbs/terraform.tfvars.example stacks/pbs/terraform.tfvars
 cp stacks/svc-01/terraform.tfvars.example stacks/svc-01/terraform.tfvars
 cp stacks/unifi/terraform.tfvars.example stacks/unifi/terraform.tfvars
+cp stacks/amp-01/terraform.tfvars.example stacks/amp-01/terraform.tfvars
+cp stacks/amp-02/terraform.tfvars.example stacks/amp-02/terraform.tfvars
 
 # Authentik stack
 cp stacks/authentik-config/terraform.tfvars.example stacks/authentik-config/terraform.tfvars
@@ -84,9 +92,14 @@ cp stacks/authentik-config/terraform.tfvars.example stacks/authentik-config/terr
 
 ## Usage
 
-### Proxmox stacks (pbs, svc-01)
+### Proxmox stacks (amp-01, amp-02, pbs, svc-01, unifi)
 
-`deploy.sh` fetches the Proxmox SSH key from SSM and passes all remaining arguments to Terraform. Stacks are auto-initialized on first run.
+`deploy.sh` fetches the Proxmox SSH key from SSM and passes all remaining arguments to Terraform. Stacks are auto-initialized on first run. The backend config is loaded from `backend.hcl` automatically.
+
+Override the AWS profile or region with environment variables if needed:
+```bash
+AWS_PROFILE=MyProfile AWS_REGION=us-west-2 ./deploy.sh pbs apply
+```
 
 ```bash
 # Standard workflow
@@ -111,7 +124,7 @@ Run directly with Terraform (not via deploy.sh — no Proxmox SSH key needed):
 
 ```bash
 cd stacks/authentik-config
-terraform init
+terraform init -backend-config=../../backend.hcl
 terraform plan
 terraform apply
 ```
@@ -142,17 +155,17 @@ On first `terraform apply`, a one-time password-reset link for your admin accoun
 
 ```
 === ADMIN ACCOUNT SETUP ===
-One-time password reset link for "sysop":
+One-time password reset link for "<admin_username>":
 
-https://authentik.svc.kernelstack.dev/if/flow/recovery-flow/?flow_token=...
+https://authentik.svc.<your-domain>/if/flow/recovery-flow/?flow_token=...
 
 ===========================
 ```
 
 1. Open the link and set a password
-2. Log in to `https://authentik.svc.kernelstack.dev` — you will be prompted to enroll TOTP
+2. Log in to `https://authentik.svc.<your-domain>` — you will be prompted to enroll TOTP
 3. Scan the QR code with your authenticator app and complete enrollment
-4. The Traefik dashboard at `https://traefik.svc.kernelstack.dev` is now protected by forward auth
+4. The Traefik dashboard at `https://traefik.svc.<your-domain>` is now protected by forward auth
 
 If you need to regenerate the link (e.g. it expired):
 ```bash
@@ -168,13 +181,14 @@ Each stack maintains independent state in S3:
 
 | Stack | State key |
 |---|---|
+| `amp-01` | `amp-01/terraform.tfstate` |
+| `amp-02` | `amp-02/terraform.tfstate` |
 | `authentik-config` | `authentik-config/terraform.tfstate` |
 | `pbs` | `pbs/terraform.tfstate` |
 | `svc-01` | `svc-01/terraform.tfstate` |
 | `unifi` | `unifi/terraform.tfstate` |
 
-S3 bucket: `kernelstack-terraform-state` — managed by `terraform-bootstrap`.
-DynamoDB lock table: `kernelstack-terraform-locks`.
+S3 bucket and DynamoDB lock table are configured in `backend.hcl` — managed by `terraform-bootstrap`.
 
 ---
 

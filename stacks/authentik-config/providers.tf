@@ -17,12 +17,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "kernelstack-terraform-state"
-    key            = "authentik-config/terraform.tfstate"
-    region         = "us-east-1"
-    profile        = "InfraProvisioner"
-    dynamodb_table = "kernelstack-terraform-locks"
-    encrypt        = true
+    key = "authentik-config/terraform.tfstate"
   }
 }
 
