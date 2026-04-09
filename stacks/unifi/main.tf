@@ -2,24 +2,24 @@ module "vm" {
   source = "../../modules/proxmox-vm"
 
   # Identity
-  vm_name        = "pbs-01"
+  vm_name        = "unifi-01"
   vm_id          = var.vm_id
-  vm_description = "Proxmox Backup Server — managed by Terraform"
-  vm_tags        = ["pbs", "terraform"]
+  vm_description = "UniFi OS Server — managed by Terraform"
+  vm_tags        = ["unifi", "terraform"]
 
   # Placement
   proxmox_node   = var.proxmox_node
   template_vm_id = var.template_vm_id
 
-  # Compute
+  # Compute — UniFi OS Server minimum: 4 cores, 4 GB RAM
   cpu_cores = 4
-  memory    = 8192
+  memory    = 4096
 
-  # Disk
+  # Disk — UniFi OS Server minimum: 20 GB
   boot_disk_datastore = var.boot_disk_datastore
   boot_disk_size      = 32
 
-  # Networking
+  # Networking — untagged on the main LAN (192.168.10.x)
   network_bridge    = var.network_bridge
   vm_ip             = var.vm_ip
   vm_cidr           = var.vm_cidr

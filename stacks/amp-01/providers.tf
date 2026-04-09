@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    key = "pbs/terraform.tfstate"
+    key = "amp-01/terraform.tfstate"
   }
 }
 

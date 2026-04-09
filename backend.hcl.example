@@ -1,0 +1,8 @@
+# Copy to backend.hcl and fill in your values (gitignored — never commit it).
+# S3 bucket and DynamoDB table are created by the terraform-bootstrap repo.
+
+bucket         = "your-terraform-state-bucket"
+region         = "us-east-1"
+profile        = "YourAWSProfile"
+dynamodb_table = "your-terraform-locks-table"
+encrypt        = true

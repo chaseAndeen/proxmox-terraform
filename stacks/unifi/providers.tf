@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    key = "pbs/terraform.tfstate"
+    key = "unifi/terraform.tfstate"
   }
 }
 

@@ -2,25 +2,26 @@ module "vm" {
   source = "../../modules/proxmox-vm"
 
   # Identity
-  vm_name        = "pbs-01"
+  vm_name        = "amp-01"
   vm_id          = var.vm_id
-  vm_description = "Proxmox Backup Server — managed by Terraform"
-  vm_tags        = ["pbs", "terraform"]
+  vm_description = "AMP Management Node (ADS controller) — managed by Terraform"
+  vm_tags        = ["amp", "ads", "terraform"]
 
   # Placement
   proxmox_node   = var.proxmox_node
   template_vm_id = var.template_vm_id
 
-  # Compute
-  cpu_cores = 4
-  memory    = 8192
+  # Compute — ADS is lightweight; game servers run on amp-02
+  cpu_cores = 2
+  memory    = 4096
 
   # Disk
   boot_disk_datastore = var.boot_disk_datastore
-  boot_disk_size      = 32
+  boot_disk_size      = 30
 
   # Networking
   network_bridge    = var.network_bridge
+  vlan_id           = var.vlan_id
   vm_ip             = var.vm_ip
   vm_cidr           = var.vm_cidr
   vm_gateway        = var.vm_gateway

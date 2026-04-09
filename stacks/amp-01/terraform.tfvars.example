@@ -19,10 +19,11 @@ boot_disk_datastore = "vmdata"   # Proxmox storage pool for VM boot disk
 
 # ─── Networking ───────────────────────────────────────────────────────────────
 network_bridge    = "vmbr0"
-vm_ip             = "192.168.x.x"
+vlan_id           = 20
+vm_ip             = "192.168.20.21"
 vm_cidr           = 24
-vm_gateway        = "192.168.x.1"
-dns_servers       = ["192.168.x.1"]
+vm_gateway        = "192.168.20.1"
+dns_servers       = ["192.168.20.1"]
 dns_search_domain = "infra.example.com"
 
 # Secrets sourced automatically from AWS SSM:
