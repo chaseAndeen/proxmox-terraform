@@ -1,0 +1,25 @@
+# ─── AWS ──────────────────────────────────────────────────────────────────────
+aws_profile = "InfraProvisioner"
+aws_region  = "us-east-1"
+
+# ─── Proxmox Connection ───────────────────────────────────────────────────────
+proxmox_api_url      = "https://pve-01.infra.example.com:8006/"
+proxmox_tls_insecure = false
+proxmox_node         = "pve-01"
+proxmox_node_address = "pve-01.infra.example.com"
+proxmox_ssh_user     = "ansible"
+proxmox_ssh_port     = 2222
+
+# ─── Networking ───────────────────────────────────────────────────────────────
+network_bridge    = "vmbr0"
+vlan_id           = 20
+vm_ip             = "192.168.20.22"
+vm_cidr           = 24
+vm_gateway        = "192.168.20.1"
+dns_servers       = ["192.168.20.1"]
+dns_search_domain = "infra.example.com"
+
+# Secrets sourced automatically from AWS SSM:
+#   /infra/proxmox/terraform_token    — Proxmox API token for terraform-prov@pve
+#   /infra/common/ansible_public_key  — ansible service account SSH public key
+#   /infra/common/ansible_private_key — ansible service account SSH private key
