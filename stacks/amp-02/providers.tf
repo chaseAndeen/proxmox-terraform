@@ -4,7 +4,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = ">= 0.61.0"
+      version = "~> 0.61"
     }
     aws = {
       source  = "hashicorp/aws"
@@ -13,12 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "kernelstack-terraform-state"
-    key            = "amp-02/terraform.tfstate"
-    region         = "us-east-1"
-    profile        = "InfraProvisioner"
-    dynamodb_table = "kernelstack-terraform-locks"
-    encrypt        = true
+    key = "amp-02/terraform.tfstate"
   }
 }
 

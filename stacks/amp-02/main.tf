@@ -3,20 +3,20 @@ module "vm" {
 
   # Identity
   vm_name        = "amp-02"
-  vm_id          = 204
+  vm_id          = var.vm_id
   vm_description = "AMP Target Node (game server worker) — managed by Terraform"
   vm_tags        = ["amp", "target", "terraform"]
 
   # Placement
   proxmox_node   = var.proxmox_node
-  template_vm_id = 9001  # Debian Trixie — playbooks written and tested against Debian
+  template_vm_id = var.template_vm_id
 
   # Compute — sized for running multiple game server instances
   cpu_cores = 4
   memory    = 20480
 
   # Disk — game server files and saves need room to grow
-  boot_disk_datastore = "vmdata"
+  boot_disk_datastore = var.boot_disk_datastore
   boot_disk_size      = 80
 
   # Networking

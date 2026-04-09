@@ -38,6 +38,7 @@ variable "proxmox_node_address" {
 variable "proxmox_ssh_user" {
   description = "SSH user for Proxmox provider"
   type        = string
+  default     = "ansible"
 }
 
 variable "proxmox_ssh_port" {
@@ -79,4 +80,24 @@ variable "dns_search_domain" {
   description = "DNS search domain"
   type        = string
   default     = ""
+}
+
+# ─── VM Identity ──────────────────────────────────────────────────────────────
+
+variable "vm_id" {
+  description = "Proxmox VM ID — must be unique across the cluster"
+  type        = number
+}
+
+variable "template_vm_id" {
+  description = "Proxmox VM ID of the Packer-built template to clone"
+  type        = number
+}
+
+# ─── Storage ──────────────────────────────────────────────────────────────────
+
+variable "boot_disk_datastore" {
+  description = "Proxmox storage pool for the VM boot disk (must be ZFS or LVM)"
+  type        = string
+  default     = "vmdata"
 }
