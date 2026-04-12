@@ -11,7 +11,6 @@ module "vm" {
   proxmox_node   = var.proxmox_node
   template_vm_id = var.template_vm_id
 
-  # Compute — ADS is lightweight; game servers run on amp-02
   cpu_cores = 2
   memory    = 4096
 

@@ -79,7 +79,5 @@ resource "proxmox_virtual_environment_vm" "this" {
     type = "l26"
   }
 
-  lifecycle {
-    ignore_changes = [disk]
-  }
+
 }

@@ -265,3 +265,18 @@ resource "authentik_flow_stage_binding" "totp" {
   stage  = authentik_stage_authenticator_validate.totp.id
   order  = 40
 }
+
+# ─── Login Failure Alerts ─────────────────────────────────────────────────────
+
+resource "authentik_event_transport" "email" {
+  name      = "email"
+  mode      = "email"
+  send_once = false
+}
+
+resource "authentik_event_rule" "login_alerts" {
+  name              = "login-alerts"
+  transports        = [authentik_event_transport.email.id]
+  severity          = "notice"
+  destination_group = authentik_group.admins.id
+}

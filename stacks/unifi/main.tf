@@ -11,15 +11,12 @@ module "vm" {
   proxmox_node   = var.proxmox_node
   template_vm_id = var.template_vm_id
 
-  # Compute — UniFi OS Server minimum: 4 cores, 4 GB RAM
   cpu_cores = 4
-  memory    = 4096
+  memory    = 8192
 
-  # Disk — UniFi OS Server minimum: 20 GB
   boot_disk_datastore = var.boot_disk_datastore
   boot_disk_size      = 32
 
-  # Networking — untagged on the main LAN (192.168.10.x)
   network_bridge    = var.network_bridge
   vm_ip             = var.vm_ip
   vm_cidr           = var.vm_cidr

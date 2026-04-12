@@ -13,7 +13,7 @@ module "vm" {
 
   # Compute
   cpu_cores = 4
-  memory    = 8192
+  memory    = 12288
 
   # Disk
   boot_disk_datastore = var.boot_disk_datastore

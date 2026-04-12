@@ -11,13 +11,11 @@ module "vm" {
   proxmox_node   = var.proxmox_node
   template_vm_id = var.template_vm_id
 
-  # Compute — sized for running multiple game server instances
   cpu_cores = 4
   memory    = 20480
 
-  # Disk — game server files and saves need room to grow
   boot_disk_datastore = var.boot_disk_datastore
-  boot_disk_size      = 80
+  boot_disk_size      = 160
 
   # Networking
   network_bridge    = var.network_bridge
