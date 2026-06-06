@@ -208,8 +208,8 @@ resource "null_resource" "embedded_outpost" {
       curl -sf -X PATCH \
         -H "Authorization: Bearer $AUTHENTIK_TOKEN" \
         -H "Content-Type: application/json" \
-        -d "{\"protocol_providers\": [$PROVIDER_ID], \"config\": {\"authentik_host\": \"$AUTHENTIK_URL\", \"authentik_host_insecure\": false, \"log_level\": \"info\"}}" \
-        "$AUTHENTIK_URL/api/v3/outposts/instances/$OUTPOST_ID/" > /dev/null
+        -d "{\"providers\": [$PROVIDER_ID], \"config\": {\"authentik_host\": \"$AUTHENTIK_URL\", \"authentik_host_insecure\": false, \"log_level\": \"info\"}}" \
+        "$AUTHENTIK_URL/api/v3/outposts/instances/$OUTPOST_ID/"
     EOT
   }
 }
