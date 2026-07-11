@@ -1,0 +1,28 @@
+{
+  "name": "proxmox-terraform",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "postCreateCommand": "terraform --version && aws --version",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "hashicorp.terraform",
+        "amazonwebservices.aws-toolkit-vscode",
+        "ms-python.python"
+      ],
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        }
+      }
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ],
+  "remoteUser": "vscode"
+}
